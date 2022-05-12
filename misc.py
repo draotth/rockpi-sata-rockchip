@@ -5,25 +5,17 @@ import sys
 import time
 import mraa # pylint: disable=import-error
 import subprocess
-#import RPi.GPIO as GPIO
 import multiprocessing as mp
 from collections import defaultdict, OrderedDict
 from configparser import ConfigParser
 
-#GPIO.setmode(GPIO.BCM)
-#GPIO.setwarnings(False)
-#GPIO.setup(17, GPIO.OUT)
-#GPIO.output(17, GPIO.HIGH)
-
-#mraa.init()
-
 # pin11(bcm17)
-#try:
-#    pin11 = mraa.Gpio(11)
-#    pin11.dir(mraa.DIR_OUT)
-#    pin11.write(1)
-#except Exception as ex:
-#    print(ex)
+try:
+    pin11 = mraa.Gpio(11)
+    pin11.dir(mraa.DIR_OUT)
+    pin11.write(1)
+except Exception as ex:
+    print(ex)
 
 cmds = {
     'blk': "lsblk | awk '{print $1}'",
@@ -38,13 +30,6 @@ cmds = {
 lv2dc = OrderedDict({'lv3': 0, 'lv2': 0.25, 'lv1': 0.5, 'lv0': 0.75})
 
 # pin37(bcm26) sata0, pin22(bcm25) sata1
-#def set_mode(pin, mode):
-#    try:
-#        GPIO.setup(pin, GPIO.OUT)
-#        GPIO.output(pin, mode)
-#    except Exception as ex:
-#        print(ex)
-
 # GPIO.HIGH = 1
 # GPIO.LOW = 0
 def set_mode(pin, mode=1):
@@ -158,15 +143,6 @@ def read_conf():
     return conf
 
 #pin11(bcm17)
-#def read_key(pattern, size):
-#    s = ''
-#    while True:
-#        s = s[-size:] + str(GPIO.input(17))
-#        for t, p in pattern.items():
-#            if p.match(s):
-#                return t
-#        time.sleep(0.1)
-
 def read_key(pattern, size):
     s = ''
     pin11 = mraa.Gpio(11)
@@ -229,22 +205,6 @@ def fan_switch():
 def get_func(key):
     return conf['key'].get(key, 'none')
 
-
-def open_w1_i2c():
-#    with open('/boot/config.txt', 'r') as f:
-#        content = f.read()
-#
-#    if 'dtoverlay=w1-gpio' not in content:
-#        with open('/boot/config.txt', 'w') as f:
-#            f.write(content.strip() + '\ndtoverlay=w1-gpio')
-#
-#    if 'dtparam=i2c1=on' not in content:
-#        with open('/boot/config.txt', 'w') as f:
-#            f.write(content.strip() + '\ndtparam=i2c1=on')
-    os.system('/sbin/modprobe w1-gpio')
-    os.system('/sbin/modprobe w1-therm')
-    os.system('/sbin/modprobe i2c-dev')
-
 def open_pwm_i2c():
     def replace(filename, raw_str, new_str):
         with open(filename, 'r') as f:
@@ -261,10 +221,13 @@ def open_pwm_i2c():
     replace('/boot/hw_intfc.conf', 'intfc:pwm1=off', 'intfc:pwm1=on')
     replace('/boot/hw_intfc.conf', 'intfc:i2c7=off', 'intfc:i2c7=on')
 
+    os.system('/sbin/modprobe w1-gpio')
+    os.system('/sbin/modprobe w1-therm')
+    os.system('/sbin/modprobe i2c-dev')
+
 conf = {'disk': [], 'idx': mp.Value('d', -1), 'run': mp.Value('d', 1)}
 conf.update(read_conf())
 
 if __name__ == '__main__':
-    if sys.argv[-1] == 'open_w1_i2c':
-        open_w1_i2c()
+    if sys.argv[-1] == 'open_pwm_i2c':
         open_pwm_i2c()

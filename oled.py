@@ -13,17 +13,13 @@ font = {
     '14': ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 14),
 }
 
-#misc.set_mode(23, 0)
-#time.sleep(0.2)
-#misc.set_mode(23, 1)
-
+#pin13(bcm23)
 misc.set_mode(13, 0)
 time.sleep(0.2)
 misc.set_mode(13, 1)
 
 def disp_init():
     if 'disp' in globals():
-        print('tried to recreate disp')
         return disp
     newDisp = Adafruit_SSD1306.SSD1306_128_32(rst=None, i2c_bus=7)
     [getattr(newDisp, x)() for x in ('begin', 'clear', 'display')]
@@ -47,7 +43,7 @@ draw = ImageDraw.Draw(image)
 
 def disp_show():
     if not 'disp' in globals():
-        print('disp was not set yet')
+        print('Disp not initialized, cannot show')
         return
     im = image.rotate(180) if misc.conf['oled']['rotate'] else image
     disp.image(im)

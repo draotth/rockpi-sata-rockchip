@@ -2,12 +2,11 @@
 import sys
 import fan
 import misc
-#try:
-#    import oled
-#    top_board = 1
-#except Exception:
-#    top_board = 0
-top_board = 0
+try:
+    import oled
+    top_board = 1
+except Exception:
+    top_board = 0
 import multiprocessing as mp
 
 q = mp.Queue()
