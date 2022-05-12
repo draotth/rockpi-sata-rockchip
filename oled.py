@@ -45,11 +45,14 @@ def disp_show():
     if not 'disp' in globals():
         print('Disp not initialized, cannot show')
         return
-    im = image.rotate(180) if misc.conf['oled']['rotate'] else image
-    disp.image(im)
-    disp.display()
-    draw.rectangle((0, 0, disp.width, disp.height), outline=0, fill=0)
-
+    try:
+        im = image.rotate(180) if misc.conf['oled']['rotate'] else image
+        disp.image(im)
+        disp.display()
+        draw.rectangle((0, 0, disp.width, disp.height), outline=0, fill=0)
+    except Exception as ex:
+        print('Failed to disp_show')
+        print(ex)
 
 def welcome():
     draw.text((0, 0), 'ROCK Pi SATA HAT', font=font['14'], fill=255)
@@ -107,8 +110,12 @@ def gen_pages():
 
 def slider(lock):
     with lock:
-        for item in misc.slider_next(gen_pages()):
-            draw.text(**item)
+        try:
+            for item in misc.slider_next(gen_pages()):
+                draw.text(**item)
+        except Exception as ex:
+            print('Draw text failed')
+            print(ex)
         disp_show()
 
 
