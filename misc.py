@@ -4,6 +4,7 @@ import os
 import sys
 import time
 import mraa # pylint: disable=import-error
+import shutil
 import subprocess
 import multiprocessing as mp
 from collections import defaultdict, OrderedDict
