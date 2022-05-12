@@ -13,36 +13,42 @@ font = {
     '14': ImageFont.truetype('fonts/DejaVuSansMono-Bold.ttf', 14),
 }
 
-#pin16(bcm23)
-#misc.set_mode(16, 0)
+#misc.set_mode(23, 0)
 #time.sleep(0.2)
-#misc.set_mode(16, 1)
+#misc.set_mode(23, 1)
 
-
-misc.set_mode(23, 0)
+misc.set_mode(13, 0)
 time.sleep(0.2)
-misc.set_mode(23, 1)
+misc.set_mode(13, 1)
 
 def disp_init():
-    disp = Adafruit_SSD1306.SSD1306_128_32(rst=None)
-    [getattr(disp, x)() for x in ('begin', 'clear', 'display')]
-    return disp
+    if 'disp' in globals():
+        print('tried to recreate disp')
+        return disp
+    newDisp = Adafruit_SSD1306.SSD1306_128_32(rst=None, i2c_bus=7)
+    [getattr(newDisp, x)() for x in ('begin', 'clear', 'display')]
+    return newDisp
 
 
 try:
     disp = disp_init()
-except Exception as ex:
-    print('Possible display config error, trying again')
-    print(ex)
-    misc.open_w1_i2c()
+except Exception:
+    misc.open_pwm_i2c()
     time.sleep(0.2)
-    disp = disp_init()
+    try:
+        disp = disp_init()
+    except Exception as ex:
+        print('Failed to start oled display')
+        print(ex)
 
 image = Image.new('1', (disp.width, disp.height))
 draw = ImageDraw.Draw(image)
 
 
 def disp_show():
+    if not 'disp' in globals():
+        print('disp was not set yet')
+        return
     im = image.rotate(180) if misc.conf['oled']['rotate'] else image
     disp.image(im)
     disp.display()
