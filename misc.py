@@ -46,9 +46,10 @@ def disk_turn_on():
     set_mode(37, 1)
     time.sleep(0.5)
     set_mode(22, 1)
-    wait_blk(10)
+    disksOn = wait_blk(20)
     blk2 = get_blk()
     conf['disk'] = sorted(list(set(blk2) - set(blk1)))
+    return disksOn
 
 
 def disk_turn_off():
@@ -79,7 +80,8 @@ def wait_blk(t1=10):
             continue
         else:
             time.sleep(0.5)
-            break
+            return True
+    return False
 
 
 def get_blk():
